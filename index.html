@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Riedel Classics – CMS</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;400;600&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+:root{--red:#c8102e;--rl:#e8213f;--blk:#0f0f0f;--dk:#141414;--mid:#1e1e1e;--wh:#f4f4f4;--gc:#8a8a8a;--bd:rgba(255,255,255,.08);}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--blk);color:var(--wh);font-family:"Open Sans",sans-serif;font-weight:300;min-height:100vh;}
+.top{background:var(--dk);border-bottom:3px solid var(--red);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.logo{font-family:"Montserrat",sans-serif;font-size:1.6rem;font-weight:200;color:var(--wh);}
+.logo span{font-size:.75rem;font-weight:300;letter-spacing:.25em;color:var(--gc);margin-left:6px;}
+.top-btns{display:flex;gap:10px;}
+.tbtn{padding:9px 20px;font-family:"Open Sans",sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border:none;}
+.tbtn-red{background:var(--red);color:#fff;}
+.tbtn-red:hover{background:var(--rl);}
+.tbtn-out{background:transparent;border:1px solid var(--bd);color:var(--gc);}
+.tbtn-out:hover{border-color:var(--red);color:var(--rl);}
+.wrap{max-width:900px;margin:0 auto;padding:24px 20px;}
+/* Accordion sections */
+.sec{background:var(--dk);border:1px solid var(--bd);margin-bottom:12px;overflow:hidden;}
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;cursor:pointer;user-select:none;-webkit-user-select:none;}
+.sec-hdr:hover{background:rgba(200,16,46,.05);}
+.sec-hdr h2{font-family:"Montserrat",sans-serif;font-size:1rem;font-weight:300;display:flex;align-items:center;gap:12px;}
+.sec-hdr h2 span{color:var(--red);font-size:1.1rem;}
+.sec-arrow{font-size:.8rem;color:var(--gc);transition:transform .2s;}
+.sec-arrow.open{transform:rotate(180deg);}
+.sec-body{display:none;padding:20px 22px;border-top:1px solid var(--bd);}
+.sec-body.open{display:block;}
+/* Form elements */
+.fg{display:grid;gap:14px;margin-bottom:16px;}
+.g2{grid-template-columns:1fr 1fr;}
+.g3{grid-template-columns:1fr 1fr 1fr;}
+.f{display:flex;flex-direction:column;gap:5px;}
+.f label{font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gc);}
+.f input,.f textarea,.f select{background:var(--mid);border:1px solid var(--bd);color:var(--wh);padding:10px 14px;font-family:"Open Sans",sans-serif;font-size:.85rem;font-weight:300;outline:none;width:100%;}
+.f textarea{resize:vertical;min-height:75px;}
+.f input:focus,.f textarea:focus,.f select:focus{border-color:var(--red);}
+.f select option{background:var(--dk);}
+.f small{font-size:.65rem;color:var(--gc);}
+.btn{padding:10px 20px;font-family:"Open Sans",sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border:none;display:inline-block;}
+.btn-r{background:var(--red);color:#fff;}
+.btn-r:hover{background:var(--rl);}
+.btn-o{background:transparent;border:1px solid var(--bd);color:var(--gc);}
+.btn-d{background:transparent;border:1px solid rgba(220,80,80,.3);color:#e05555;padding:6px 12px;font-size:.65rem;}
+/* Info box */
+.info{background:rgba(200,16,46,.06);border-left:3px solid var(--red);padding:10px 14px;margin-bottom:16px;font-size:.78rem;color:var(--gc);line-height:1.6;}
+.info b{color:var(--rl);}
+/* Project list */
+.proj-item{background:var(--mid);border:1px solid var(--bd);margin-bottom:8px;overflow:hidden;}
+.proj-top{display:grid;grid-template-columns:70px 1fr auto;gap:12px;align-items:center;padding:12px 16px;cursor:pointer;}
+.proj-top:hover{background:rgba(200,16,46,.05);}
+.proj-thumb{width:70px;height:52px;background:var(--dk);border:1px solid var(--bd);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;}
+.proj-thumb img{width:100%;height:100%;object-fit:cover;}
+.proj-name{font-family:"Montserrat",sans-serif;font-size:.95rem;font-weight:300;margin-bottom:3px;}
+.proj-meta{font-size:.68rem;color:var(--gc);}
+.proj-cat{font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;padding:2px 8px;border:1px solid rgba(200,16,46,.3);color:var(--rl);display:inline-block;margin-top:3px;}
+.proj-body{display:none;border-top:1px solid var(--bd);padding:14px 16px;background:rgba(0,0,0,.2);}
+.proj-body.open{display:block;}
+.img-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;}
+.img-tile{position:relative;aspect-ratio:4/3;background:var(--dk);border:1px solid var(--bd);overflow:hidden;cursor:pointer;}
+.img-tile img{width:100%;height:100%;object-fit:cover;}
+.img-tile:hover img{opacity:.85;}
+.img-tile-lbl{position:absolute;bottom:0;left:0;right:0;background:rgba(15,15,15,.88);padding:3px 6px;font-size:.56rem;letter-spacing:.08em;text-transform:uppercase;color:var(--wh);text-align:center;}
+.img-tile-del{position:absolute;top:3px;right:3px;background:rgba(200,16,46,.85);border:none;color:#fff;width:20px;height:20px;cursor:pointer;font-size:.65rem;z-index:2;}
+.img-add-btn{border:1px dashed rgba(200,16,46,.35);background:transparent;color:var(--rl);aspect-ratio:4/3;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-family:"Open Sans",sans-serif;font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;}
+.img-add-btn:hover{border-color:var(--red);background:rgba(200,16,46,.06);}
+.img-form{background:rgba(200,16,46,.04);border:1px solid rgba(200,16,46,.2);border-left:2px solid var(--red);padding:14px;margin-top:10px;display:none;}
+.itabs{display:flex;gap:0;margin-bottom:12px;border-bottom:1px solid var(--bd);}
+.itab{background:transparent;border:none;color:var(--gc);padding:6px 16px;cursor:pointer;font-family:"Open Sans",sans-serif;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;}
+.itab.on{color:var(--rl);border-bottom-color:var(--red);}
+.itab-panel{display:none;}.itab-panel.on{display:block;}
+.drop-z{border:1px dashed rgba(200,16,46,.35);padding:18px;text-align:center;cursor:pointer;position:relative;transition:border-color .2s;}
+.drop-z:hover,.drop-z.dg{border-color:var(--red);}
+.drop-z input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.drop-z-txt{color:var(--gc);font-size:.75rem;pointer-events:none;}
+.up-prev{display:none;margin-top:8px;}
+.up-prev img{width:100%;max-height:120px;object-fit:cover;}
+/* Leis items */
+.leis-row{display:grid;grid-template-columns:50px 50px 1fr;gap:10px;margin-bottom:10px;align-items:start;}
+.leis-block{background:var(--mid);border:1px solid var(--bd);border-left:3px solid var(--red);padding:14px;margin-bottom:8px;}
+/* Points */
+.pt-row{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
+.pt-row input{flex:1;background:var(--mid);border:1px solid var(--bd);color:var(--wh);padding:9px 12px;font-size:.84rem;outline:none;}
+/* Toast */
+.toast{position:fixed;bottom:20px;right:20px;background:#4caf7d;color:#fff;padding:10px 18px;font-size:.78rem;font-weight:700;z-index:9999;opacity:0;transform:translateY(8px);transition:all .3s;pointer-events:none;}
+.toast.show{opacity:1;transform:translateY(0);}
+/* Lightbox */
+.lb{position:fixed;inset:0;background:rgba(0,0,0,.96);z-index:1000;display:none;flex-direction:column;align-items:center;justify-content:center;}
+.lb.open{display:flex;}
+.lb img{max-width:92vw;max-height:80vh;object-fit:contain;}
+.lb-lbl{color:var(--wh);font-size:.8rem;margin-top:10px;opacity:.7;letter-spacing:.1em;text-transform:uppercase;}
+.lb-x{position:absolute;top:16px;right:20px;background:none;border:none;color:var(--wh);font-size:1.8rem;cursor:pointer;}
+.lb-pp{position:absolute;left:16px;top:50%;transform:translateY(-50%);background:rgba(200,16,46,.75);border:none;color:#fff;font-size:1.5rem;cursor:pointer;padding:10px 14px;}
+.lb-pn{position:absolute;right:16px;top:50%;transform:translateY(-50%);background:rgba(200,16,46,.75);border:none;color:#fff;font-size:1.5rem;cursor:pointer;padding:10px 14px;}
+@media(max-width:600px){.g2,.g3{grid-template-columns:1fr;}.img-grid{grid-template-columns:repeat(3,1fr);}.top{flex-direction:column;gap:10px;}.top-btns{width:100%;}.tbtn{flex:1;text-align:center;}}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="logo">Riedel<span>classics</span></div>
+  <div class="top-btns">
+    <button class="tbtn tbtn-out" onclick="openPreview()">&#9654; Vorschau</button>
+    <button class="tbtn tbtn-red" onclick="downloadSite()">&#8595; Website herunterladen</button>
+  </div>
+</div>
+
+<div class="wrap">
+
+<!-- REFERENZEN -->
+<div class="sec" id="sec-refs">
+  <div class="sec-hdr" onclick="toggleSec('refs')">
+    <h2><span>&#128663;</span> Referenzen &amp; Projekte <small id="ref-count-hdr" style="font-size:.65rem;color:var(--gc);margin-left:8px;font-family:Open Sans,sans-serif;">(0)</small></h2>
+    <div class="sec-arrow open" id="arr-refs">&#9650;</div>
+  </div>
+  <div class="sec-body open" id="body-refs">
+    <div class="info"><b>Fotos:</b> Direkt hochladen (Foto von Gerät) <b>oder</b> per URL: imgbb.com &#8594; Foto hochladen &#8594; Rechtsklick &#8594; "Bildadresse kopieren"</div>
+    <div class="fg g3">
+      <div class="f"><label>Projektname *</label><input type="text" id="p-name" placeholder="z.B. W113 280 SL"></div>
+      <div class="f"><label>Marke</label>
+        <select id="p-brand">
+          <option value="mercedes">Mercedes-Benz</option>
+          <option value="porsche">Porsche</option>
+          <option value="volkswagen">Volkswagen</option>
+          <option value="bmw">BMW</option>
+          <option value="andere">Andere</option>
+        </select>
+      </div>
+      <div class="f"><label>Jahr</label><input type="text" id="p-year" placeholder="2024"></div>
+    </div>
+    <div class="fg g2">
+      <div class="f"><label>Kategorie</label>
+        <select id="p-cat">
+          <option value="unterboden">Unterbodenpflege</option>
+          <option value="lackierung">Lackierung &amp; Lackpflege</option>
+          <option value="karosserie">Karosserie</option>
+          <option value="motor">Motor &amp; Technik</option>
+          <option value="innenraum">Innenraum</option>
+          <option value="restaurierung">Komplettrestaurierung</option>
+          <option value="wartung">Wartung &amp; Service</option>
+        </select>
+      </div>
+      <div class="f"><label>Kurzbeschreibung</label><input type="text" id="p-desc" placeholder="Was wurde gemacht?"></div>
+    </div>
+    <button class="btn btn-r" onclick="addProj()">+ Projekt anlegen</button>
+    <div id="proj-list" style="margin-top:16px;"></div>
+  </div>
+</div>
+
+<!-- LEISTUNGEN -->
+<div class="sec" id="sec-leis">
+  <div class="sec-hdr" onclick="toggleSec('leis')">
+    <h2><span>&#10022;</span> Leistungen &amp; Beschreibungen</h2>
+    <div class="sec-arrow" id="arr-leis">&#9650;</div>
+  </div>
+  <div class="sec-body" id="body-leis">
+    <div id="leis-list"></div>
+    <button class="btn btn-r" onclick="saveLeis()">&#10003; Leistungen speichern</button>
+  </div>
+</div>
+
+<!-- ÜBER UNS -->
+<div class="sec" id="sec-ue">
+  <div class="sec-hdr" onclick="toggleSec('ue')">
+    <h2><span>&#9670;</span> &#220;ber uns</h2>
+    <div class="sec-arrow" id="arr-ue">&#9650;</div>
+  </div>
+  <div class="sec-body" id="body-ue">
+    <div class="fg" style="margin-bottom:16px;">
+      <div class="f"><label>&#220;berschrift</label><input type="text" id="u-title" value="Leidenschaft f&#252;r Klassiker"></div>
+      <div class="fg g2">
+        <div class="f"><label>Text Absatz 1</label><textarea id="u-t1" rows="3">Wir sind der kompetente Ansprechpartner rund um Ihr Liebhaberfahrzeug.</textarea></div>
+        <div class="f"><label>Text Absatz 2</label><textarea id="u-t2" rows="3">Achten auch Sie auf die Details? Dann sind Sie bei uns genau richtig.</textarea></div>
+      </div>
+      <div class="fg g2">
+        <div class="f"><label>Jahre Erfahrung</label><input type="text" id="u-yrs" value="15+"></div>
+        <div class="f"><label>Foto-URL</label><input type="text" id="u-img" placeholder="https://i.ibb.co/..."></div>
+      </div>
+    </div>
+    <div style="margin-bottom:16px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <label style="font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gc);">Unsere St&#228;rken</label>
+        <button class="btn btn-o" style="padding:5px 12px;font-size:.65rem;" onclick="addPt()">+ Punkt</button>
+      </div>
+      <div id="pts-list"></div>
+    </div>
+    <button class="btn btn-r" onclick="saveUe()">&#10003; &#220;ber uns speichern</button>
+  </div>
+</div>
+
+<!-- KONTAKT -->
+<div class="sec" id="sec-ko">
+  <div class="sec-hdr" onclick="toggleSec('ko')">
+    <h2><span>&#9993;</span> Kontakt &amp; &#214;ffnungszeiten</h2>
+    <div class="sec-arrow" id="arr-ko">&#9650;</div>
+  </div>
+  <div class="sec-body" id="body-ko">
+    <div class="fg g2" style="margin-bottom:16px;">
+      <div class="f"><label>Firmenname</label><input type="text" id="k-name" value="Riedel Classics"></div>
+      <div class="f"><label>Inhaber</label><input type="text" id="k-owner" placeholder="Max Riedel"></div>
+      <div class="f"><label>Stra&#223;e &amp; Nr.</label><input type="text" id="k-str" placeholder="Musterstra&#223;e 12"></div>
+      <div class="f"><label>PLZ &amp; Ort</label><input type="text" id="k-city" placeholder="12345 Musterstadt"></div>
+      <div class="f"><label>Telefon</label><input type="text" id="k-tel" placeholder="+49 (0) XXX XXXXXXX"></div>
+      <div class="f"><label>E-Mail</label><input type="email" id="k-mail" value="info@riedel-classics.de"></div>
+    </div>
+    <div class="fg g2" style="margin-bottom:16px;">
+      <div class="f"><label>Mo &#8211; Fr</label><input type="text" id="k-mofr" value="08:00 &#8211; 18:00 Uhr"></div>
+      <div class="f"><label>Samstag</label><input type="text" id="k-sa" value="Nach Vereinbarung"></div>
+      <div class="f"><label>Sonntag</label><input type="text" id="k-so" value="Geschlossen"></div>
+      <div class="f"><label>Hinweis</label><input type="text" id="k-note" placeholder="Termine auch au&#223;erhalb m&#246;glich"></div>
+    </div>
+    <div class="fg" style="margin-bottom:16px;">
+      <div class="f"><label>Slogan (Startseite)</label><input type="text" id="k-hero" value="...mit Liebe zum Detail"></div>
+      <div class="f"><label>Untertitel</label><textarea id="k-sub" rows="2">Kompetente Pflege, Restaurierung und Wartung f&#252;r klassische Fahrzeuge.</textarea></div>
+      <div class="f"><label>Hero-Foto URL</label><input type="text" id="k-heroimg" placeholder="https://i.ibb.co/..."><small>Gro&#223;es Startseiten-Foto</small></div>
+    </div>
+    <button class="btn btn-r" onclick="saveK()">&#10003; Kontaktdaten speichern</button>
+  </div>
+</div>
+
+</div><!-- /wrap -->
+
+<!-- Lightbox -->
+<div class="lb" id="lb">
+  <button class="lb-x" onclick="document.getElementById('lb').classList.remove('open')">&#10005;</button>
+  <button class="lb-pp" onclick="lbNav(-1)">&#8249;</button>
+  <img id="lb-img" src="" alt="">
+  <div class="lb-lbl" id="lb-lbl"></div>
+  <button class="lb-pn" onclick="lbNav(1)">&#8250;</button>
+</div>
+
+<!-- Preview modal -->
+<div id="pv-ov" style="position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:500;display:none;flex-direction:column;">
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 18px;background:var(--dk);border-bottom:3px solid var(--red);flex-shrink:0;">
+    <span style="font-family:Montserrat,sans-serif;font-size:.9rem;font-weight:300;">Vorschau – Riedel Classics</span>
+    <button onclick="document.getElementById('pv-ov').style.display='none';document.getElementById('pv-frame').src='';" style="background:none;border:none;color:var(--gc);font-size:1.3rem;cursor:pointer;">&#10005;</button>
+  </div>
+  <iframe id="pv-frame" style="flex:1;border:none;background:#fff;"></iframe>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var CAT={unterboden:"Unterbodenpflege",lackierung:"Lackierung & Lackpflege",karosserie:"Karosserie",motor:"Motor & Technik",innenraum:"Innenraum",restaurierung:"Komplettrestaurierung",wartung:"Wartung & Service"};
+
+var S={
+  projs:[],
+  leis:[
+    {icon:"&#9632;",title:"Fahrzeugpflege & Reinigung",desc:"Schonende Reinigungstechniken f\u00fcr empfindliche Oberfl\u00e4chen und Lacke klassischer Fahrzeuge."},
+    {icon:"&#9670;",title:"Versiegelung & Lackschutz",desc:"Langanhaltender Schutz des Originallacks durch professionelle Versiegelung und Polishing."},
+    {icon:"&#9672;",title:"Wartung & Instandsetzung",desc:"Fachgerechte Wartungsarbeiten und Reparaturen, die den Originalzustand respektieren."},
+    {icon:"&#9679;",title:"Komplettrestaurierung",desc:"Von der Aufnahme bis zur \u00dcbergabe \u2013 vollst\u00e4ndige Wiederherstellung aus einer Hand."},
+    {icon:"&#9675;",title:"Unterbodenpflege",desc:"Professionelle Unterbodenreinigung, Konservierung und Korrosionsschutz."},
+    {icon:"&#9671;",title:"Beratung & Begutachtung",desc:"Ehrliche Einsch\u00e4tzung des Fahrzeugzustands vor Kauf oder f\u00fcr die Versicherung."}
+  ],
+  ue:{title:"Leidenschaft f\u00fcr Klassiker",t1:"Wir sind der kompetente Ansprechpartner rund um Ihr Liebhaberfahrzeug.",t2:"Achten auch Sie auf die Details?",yrs:"15+",img:"",pts:["Spezialisiert auf Old- und Youngtimer","Kompletter Service aus einer Hand","Pers\u00f6nliche Betreuung","Modernste Technik, schonend zum Original"]},
+  k:{name:"Riedel Classics",owner:"",str:"",city:"",tel:"",mail:"info@riedel-classics.de",mofr:"08:00 - 18:00 Uhr",sa:"Nach Vereinbarung",so:"Geschlossen",note:"",hero:"...mit Liebe zum Detail",sub:"Kompetente Pflege, Restaurierung und Wartung.",heroimg:""}
+};
+
+// Accordion toggle
+function toggleSec(id){
+  var body=document.getElementById("body-"+id);
+  var arr=document.getElementById("arr-"+id);
+  var open=body.classList.toggle("open");
+  arr.style.transform=open?"":"rotate(180deg)";
+}
+
+// Toast
+function toast(msg,col){
+  var t=document.getElementById("toast");
+  t.textContent=msg;t.style.background=col||"#4caf7d";
+  t.classList.add("show");setTimeout(function(){t.classList.remove("show");},2500);
+}
+
+// Projects
+function addProj(){
+  var name=document.getElementById("p-name").value.trim();
+  if(!name){toast("Bitte Projektname eingeben.","#e05555");return;}
+  var sb=document.getElementById("p-brand"),sc=document.getElementById("p-cat");
+  S.projs.push({id:Date.now(),name:name,brand:sb.value,brandLabel:sb.options[sb.selectedIndex].text,
+    year:document.getElementById("p-year").value,
+    cat:sc.value,catLabel:sc.options[sc.selectedIndex].text,
+    desc:document.getElementById("p-desc").value.trim(),
+    images:[],open:false});
+  ["p-name","p-year","p-desc"].forEach(function(i){document.getElementById(i).value="";});
+  renderProjs();toast("Projekt angelegt!");
+}
+
+function delProj(id){
+  S.projs=S.projs.filter(function(p){return p.id!==id;});
+  renderProjs();toast("Gel\u00f6scht.","#888");
+}
+
+function toggleProj(id){
+  var p=S.projs.find(function(x){return x.id===id;});
+  if(p){p.open=!p.open;renderProjs();}
+}
+
+function showImgForm(id){
+  var f=document.getElementById("imgf-"+id);
+  if(f)f.style.display=f.style.display==="none"?"block":"none";
+}
+
+window._uploadData={};
+
+function switchImgTab(pid,tab){
+  var tabs=["url","upload"];
+  tabs.forEach(function(t){
+    var btn=document.getElementById("itab-"+t+"-"+pid);
+    var panel=document.getElementById("ipanel-"+t+"-"+pid);
+    if(btn){btn.classList.toggle("on",t===tab);}
+    if(panel){panel.classList.toggle("on",t===tab);}
+  });
+}
+
+function handleUpload(evt,pid){
+  var file=evt.target.files[0];
+  if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var img=new Image();
+    img.onload=function(){
+      var canvas=document.createElement("canvas");
+      var maxW=1200,w=img.width,h=img.height;
+      if(w>maxW){h=Math.round(h*maxW/w);w=maxW;}
+      canvas.width=w;canvas.height=h;
+      canvas.getContext("2d").drawImage(img,0,0,w,h);
+      var data=canvas.toDataURL("image/jpeg",0.82);
+      window._uploadData[pid]=data;
+      var prev=document.getElementById("uprev-"+pid);
+      var prevImg=document.getElementById("uprevimg-"+pid);
+      if(prev&&prevImg){prevImg.src=data;prev.style.display="block";}
+    };
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function addImg(pid){
+  var p=S.projs.find(function(x){return x.id===pid;});
+  if(!p||p.images.length>=10){toast("Max. 10 Bilder.","#e05555");return;}
+  var urlPanel=document.getElementById("ipanel-url-"+pid);
+  var isUrl=urlPanel&&urlPanel.classList.contains("on");
+  var url,lbl;
+  if(isUrl){
+    var uEl=document.getElementById("iu-"+pid);
+    url=uEl?uEl.value.trim():"";
+    var lEl=document.getElementById("il-"+pid);
+    lbl=lEl&&lEl.value.trim()?lEl.value.trim():("Bild "+(p.images.length+1));
+    if(!url){toast("Bitte Foto-URL eingeben.","#e05555");return;}
+  } else {
+    url=window._uploadData&&window._uploadData[pid];
+    var luEl=document.getElementById("ilu-"+pid);
+    lbl=luEl&&luEl.value.trim()?luEl.value.trim():("Bild "+(p.images.length+1));
+    if(!url){toast("Bitte zuerst ein Foto auswählen.","#e05555");return;}
+  }
+  p.images.push({url:url,label:lbl});
+  if(window._uploadData)window._uploadData[pid]=null;
+  renderProjs();toast("Bild hinzugefügt!");
+}
+
+function delImg(pid,idx){
+  var p=S.projs.find(function(x){return x.id===pid;});
+  if(p){p.images.splice(idx,1);renderProjs();}
+}
+
+function renderProjs(){
+  var n=S.projs.length;
+  document.getElementById("ref-count-hdr").textContent="("+n+")";
+  var list=document.getElementById("proj-list");
+  if(!n){list.innerHTML="<div style='text-align:center;padding:24px;color:var(--gc);font-size:.8rem;'>Noch keine Projekte.</div>";return;}
+  var html="";
+  S.projs.forEach(function(p){
+    var thumb=p.images.length?"<img src='"+p.images[0].url+"' onerror='this.parentElement.innerHTML=\"&#128663;\"'>":"&#128663;";
+    html+="<div class='proj-item'>";
+    html+="<div class='proj-top' onclick='toggleProj("+p.id+")'>";
+    html+="<div class='proj-thumb'>"+thumb+"</div>";
+    html+="<div><div class='proj-name'>"+p.name+"</div>";
+    html+="<div class='proj-meta'>"+p.brandLabel+(p.year?" &middot; "+p.year:"")+" &middot; "+p.images.length+" Bild"+(p.images.length!==1?"er":"")+"</div>";
+    html+="<span class='proj-cat'>"+p.catLabel+"</span></div>";
+    html+="<button class='btn btn-d' onclick='event.stopPropagation();delProj("+p.id+")'>&#10005; L\u00f6schen</button>";
+    html+="</div>";
+    if(p.open){
+      html+="<div class='proj-body open'>";
+      html+="<div class='img-grid'>";
+      p.images.forEach(function(img,idx){
+        html+="<div class='img-tile' onclick='openLB("+p.id+","+idx+")'>";
+        html+="<img src='"+img.url+"' onerror='this.style.display=\"none\"'>";
+        html+="<div class='img-tile-lbl'>"+img.label+"</div>";
+        html+="<button class='img-tile-del' onclick='event.stopPropagation();delImg("+p.id+","+idx+")'>&#10005;</button>";
+        html+="</div>";
+      });
+      if(p.images.length<10){
+        html+="<button class='img-add-btn' onclick='showImgForm("+p.id+")'><span style='font-size:1.5rem;'>+</span><span>Bild</span></button>";
+      }
+      html+="</div>";
+      if(p.images.length<10){
+        html+="<div class='img-form' id='imgf-"+p.id+"'>";
+        html+="<div class='itabs'>";
+        html+="<button class='itab on' id='itab-url-"+p.id+"' onclick='switchImgTab("+p.id+",\"url\")'>URL</button>";
+        html+="<button class='itab' id='itab-up-"+p.id+"' onclick='switchImgTab("+p.id+",\"upload\")'>&#8679; Hochladen</button>";
+        html+="</div>";
+        // URL panel
+        html+="<div class='itab-panel on' id='ipanel-url-"+p.id+"'>";
+        html+="<div class='fg g2' style='margin-bottom:10px;'>";
+        html+="<div class='f'><label>Foto-URL (imgbb o.ä.)</label><input type='text' id='iu-"+p.id+"' placeholder='https://i.ibb.co/...'></div>";
+        html+="<div class='f'><label>Bezeichnung</label><input type='text' id='il-"+p.id+"' placeholder='z.B. Unterboden vorher'></div>";
+        html+="</div></div>";
+        // Upload panel
+        html+="<div class='itab-panel' id='ipanel-up-"+p.id+"'>";
+        html+="<div class='drop-z' id='dz-"+p.id+"'>";
+        html+="<input type='file' accept='image/*' onchange='handleUpload(event,"+p.id+")'>";
+        html+="<div class='drop-z-txt'>&#128247; Foto auswählen oder hierher ziehen</div>";
+        html+="</div>";
+        html+="<div class='up-prev' id='uprev-"+p.id+"'><img id='uprevimg-"+p.id+"' src='' alt=''></div>";
+        html+="<div class='f' style='margin-top:8px;'><label>Bezeichnung</label><input type='text' id='ilu-"+p.id+"' placeholder='z.B. Motor vorher'></div>";
+        html+="</div>";
+        html+="<button class='btn btn-r' style='margin-top:10px;' onclick='addImg("+p.id+")'>+ Bild speichern</button>";
+        html+="</div>";
+      }
+      html+="</div>";
+    }
+    html+="</div>";
+  });
+  list.innerHTML=html;
+}
+
+// Lightbox
+var lbPid=null,lbIdx=0;
+function openLB(pid,idx){
+  lbPid=pid;lbIdx=idx;
+  var p=S.projs.find(function(x){return x.id===pid;});
+  if(!p||!p.images[idx])return;
+  document.getElementById("lb-img").src=p.images[idx].url;
+  document.getElementById("lb-lbl").textContent=p.name+" \u2013 "+p.images[idx].label;
+  document.getElementById("lb").querySelector(".lb-pp").style.display=idx>0?"":"none";
+  document.getElementById("lb").querySelector(".lb-pn").style.display=idx<p.images.length-1?"":"none";
+  document.getElementById("lb").classList.add("open");
+}
+function lbNav(d){
+  var p=S.projs.find(function(x){return x.id===lbPid;});
+  if(!p)return;
+  openLB(lbPid,Math.max(0,Math.min(p.images.length-1,lbIdx+d)));
+}
+
+// Leistungen
+function renderLeis(){
+  var html="";
+  S.leis.forEach(function(l,i){
+    html+="<div class='leis-block'>";
+    html+="<div class='leis-row'>";
+    html+="<div class='f'><label>Nr.</label><input value='0"+(i+1)+"' disabled style='color:var(--rl);text-align:center;'></div>";
+    html+="<div class='f'><label>Icon</label><input type='text' class='li' data-i='"+i+"' data-f='icon' value='"+l.icon+"' style='text-align:center;font-size:1.1rem;'></div>";
+    html+="<div class='f'><label>Titel</label><input type='text' class='li' data-i='"+i+"' data-f='title' value='"+l.title+"'></div>";
+    html+="</div>";
+    html+="<div class='f'><label>Beschreibung</label><textarea class='li' data-i='"+i+"' data-f='desc' rows='2'>"+l.desc+"</textarea></div>";
+    html+="</div>";
+  });
+  document.getElementById("leis-list").innerHTML=html;
+}
+
+function saveLeis(){
+  document.querySelectorAll(".li").forEach(function(el){S.leis[parseInt(el.dataset.i)][el.dataset.f]=el.value;});
+  toast("Leistungen gespeichert!");
+}
+
+// Über uns
+function renderPts(){
+  var html="";
+  S.ue.pts.forEach(function(p,i){
+    html+="<div class='pt-row'><input type='text' value='"+p.replace(/'/g,"&#39;")+"' data-pt='"+i+"' onchange='S.ue.pts["+i+"]=this.value'><button class='btn btn-d' onclick='S.ue.pts.splice("+i+",1);renderPts()'>&#10005;</button></div>";
+  });
+  document.getElementById("pts-list").innerHTML=html;
+}
+function addPt(){S.ue.pts.push("Neuer Punkt");renderPts();}
+function saveUe(){
+  document.querySelectorAll("#pts-list [data-pt]").forEach(function(i){S.ue.pts[parseInt(i.getAttribute("data-pt"))]=i.value;});
+  S.ue.title=document.getElementById("u-title").value;
+  S.ue.t1=document.getElementById("u-t1").value;
+  S.ue.t2=document.getElementById("u-t2").value;
+  S.ue.yrs=document.getElementById("u-yrs").value;
+  S.ue.img=document.getElementById("u-img").value;
+  toast("\u00dcber uns gespeichert!");
+}
+
+// Kontakt
+function saveK(){
+  ["name","owner","str","city","tel","mail","mofr","sa","so","note","hero","sub","heroimg"].forEach(function(k){S.k[k]=document.getElementById("k-"+k).value;});
+  toast("Kontaktdaten gespeichert!");
+}
+
+// Website generator
+function buildSite(){
+  var k=S.k,u=S.ue;
+  var hbg=k.heroimg?"background-image:url('"+k.heroimg+"');background-size:cover;background-position:center 40%;filter:brightness(.42) contrast(1.1);":"background:linear-gradient(160deg,#0f0f0f,#1a1008,#0f0f0f);";
+  var aimg=u.img?"<img src='"+u.img+"' style='width:100%;height:100%;object-fit:cover;'>":"";
+  var cats=[];S.projs.forEach(function(p){if(cats.indexOf(p.cat)<0)cats.push(p.cat);});
+  var flt="<button class='fb on' onclick=\"fr(this,'all')\">Alle</button>";
+  cats.forEach(function(c){flt+="<button class='fb' onclick=\"fr(this,'"+c+"')\">"+CAT[c]+"</button>";});
+  var ph=S.projs.length?S.projs.map(function(p,pi){
+    var mi=p.images.length?"<img src='"+p.images[0].url+"' style='width:100%;height:100%;object-fit:cover;'>":"<div style='width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:2rem;opacity:.15;'>&#128663;</div>";
+    var th=p.images.map(function(img,i){return "<div class='pt' onclick='oLB("+pi+","+i+")'><img src='"+img.url+"'><div class='ptl'>"+img.label+"</div></div>";}).join("");
+    var imgLbl=p.images.length===1?"1 Bild":p.images.length+" Bilder";
+    var togLbl="&#9660; "+imgLbl+" anzeigen";
+    return "<div class='pc' data-cat='"+p.cat+"'><div class='pm' onclick='tPC(this)'><div class='pi'>"+mi+"</div><div class='pn'><div class='pt2'>"+p.catLabel+"</div><div class='pna'>"+p.name+"</div><div class='pm2'>"+p.brandLabel+(p.year?" &middot; "+p.year:"")+"</div>"+(p.desc?"<div class='pd'>"+p.desc+"</div>":"")+"</div><div class='ptog'><span class='ptog-lbl'>"+togLbl+"</span></div></div><div class='pg'><div class='ptg'>"+th+"</div></div></div>";
+  }).join(""):"<div style='padding:40px;text-align:center;color:rgba(244,244,244,.15);font-family:Montserrat,sans-serif;letter-spacing:.1em;text-transform:uppercase;'>Ihre Projekte erscheinen hier</div>";
+  var lh=S.leis.map(function(l,i){return "<div class='sv'><span class='svn'>0"+(i+1)+"</span><span class='svi'>"+l.icon+"</span><h3 class='svt'>"+l.title+"</h3><p class='svd'>"+l.desc+"</p></div>";}).join("");
+  var uh=u.pts.map(function(p){return "<li>"+p+"</li>";}).join("");
+  var oh=S.leis.map(function(l){return "<option>"+l.title+"</option>";}).join("");
+  var yr=new Date().getFullYear();
+  var ld=JSON.stringify(S.projs.map(function(p){return {name:p.name,images:p.images};}));
+  var css=":root{--blk:#0f0f0f;--dk:#141414;--mid:#1e1e1e;--red:#c8102e;--rl:#e8213f;--gc:#8a8a8a;--wh:#f4f4f4;--bd:rgba(255,255,255,.07);}*{margin:0;padding:0;box-sizing:border-box;}html{scroll-behavior:smooth;}body{background:var(--blk);color:var(--wh);font-family:'Open Sans',sans-serif;font-weight:300;line-height:1.6;overflow-x:hidden;}nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(15,15,15,.97);border-bottom:3px solid var(--red);}.ni{display:flex;align-items:center;justify-content:space-between;padding:0 60px;height:68px;}.nl{text-decoration:none;display:flex;align-items:baseline;}.nl .r{font-family:'Montserrat',sans-serif;font-size:1.7rem;font-weight:200;color:var(--wh);}.nl .s{display:inline-block;width:1px;height:11px;background:var(--red);margin:0 5px;vertical-align:middle;}.nl .c{font-family:'Montserrat',sans-serif;font-size:.74rem;font-weight:300;letter-spacing:.28em;color:var(--gc);}.nls{display:flex;gap:32px;list-style:none;}.nls a{color:rgba(244,244,244,.6);text-decoration:none;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;}.nls a:hover{color:var(--rl);}.nc{background:var(--red);color:#fff;padding:8px 22px;font-family:'Open Sans',sans-serif;font-size:.7rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;}#hero{position:relative;height:100vh;min-height:650px;display:flex;align-items:flex-end;overflow:hidden;}.hbg{position:absolute;inset:0;"+hbg+"}.hov{position:absolute;inset:0;background:linear-gradient(to top,rgba(15,15,15,.94) 0%,rgba(15,15,15,.25) 55%,transparent 100%);}.hc{position:relative;z-index:2;padding:0 60px 85px;max-width:730px;}.hey{font-size:.65rem;font-weight:600;letter-spacing:.3em;text-transform:uppercase;color:var(--rl);margin-bottom:15px;display:flex;align-items:center;gap:11px;}.hey::before{content:'';display:block;width:30px;height:2px;background:var(--red);}.ht{font-family:'Montserrat',sans-serif;font-size:clamp(2.5rem,7vw,4.8rem);font-weight:200;line-height:1.05;margin-bottom:20px;}.ht em{font-style:italic;color:var(--rl);}.hs{font-size:.88rem;color:rgba(244,244,244,.55);max-width:420px;margin-bottom:38px;line-height:1.8;}.ha{display:flex;gap:15px;align-items:center;}.bm{background:var(--red);color:#fff;padding:13px 32px;font-family:'Open Sans',sans-serif;font-size:.72rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;display:inline-block;}.bm:hover{background:var(--rl);}.bs{color:rgba(244,244,244,.6);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;display:flex;align-items:center;gap:7px;}.rline{height:3px;background:var(--red);}.sb{background:var(--mid);display:grid;grid-template-columns:repeat(4,1fr);}.si{padding:24px 18px;text-align:center;border-right:1px solid var(--bd);}.si:last-child{border-right:none;}.sn{font-family:'Montserrat',sans-serif;font-size:2.1rem;font-weight:200;color:var(--rl);line-height:1;margin-bottom:4px;}.sl{font-size:.61rem;letter-spacing:.15em;text-transform:uppercase;color:var(--gc);}section{padding:90px 60px;}.ey{font-size:.62rem;font-weight:600;letter-spacing:.3em;text-transform:uppercase;color:var(--red);margin-bottom:12px;display:flex;align-items:center;gap:10px;}.ey::before{content:'';display:block;width:24px;height:2px;background:var(--red);}.st{font-family:'Montserrat',sans-serif;font-size:clamp(1.8rem,4vw,3rem);font-weight:200;line-height:1.1;margin-bottom:17px;}.st em{font-style:italic;color:var(--rl);}#services{background:var(--dk);}.sh{display:grid;grid-template-columns:1fr 1fr;gap:55px;margin-bottom:60px;align-items:end;}.si2{color:rgba(244,244,244,.5);font-size:.85rem;line-height:1.85;max-width:390px;}.sg{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--bd);}.sv{background:var(--mid);padding:34px 26px;position:relative;overflow:hidden;transition:background .3s;}.sv::after{content:'';position:absolute;bottom:0;left:0;width:100%;height:2px;background:var(--red);transform:scaleX(0);transform-origin:left;transition:transform .35s;}.sv:hover{background:#232323;}.sv:hover::after{transform:scaleX(1);}.svi{font-size:1.4rem;color:var(--red);margin-bottom:17px;display:block;}.svn{position:absolute;top:17px;right:20px;font-family:'Montserrat',sans-serif;font-size:3.2rem;font-weight:200;color:rgba(200,16,46,.05);line-height:1;}.svt{font-family:'Montserrat',sans-serif;font-size:1.15rem;font-weight:300;margin-bottom:10px;}.svd{font-size:.77rem;color:rgba(244,244,244,.48);line-height:1.75;}#referenzen{background:var(--blk);}.rh{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:42px;flex-wrap:wrap;gap:16px;}.rf{display:flex;gap:5px;flex-wrap:wrap;}.fb{padding:6px 16px;font-family:'Open Sans',sans-serif;font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;background:transparent;border:1px solid var(--bd);color:var(--gc);cursor:pointer;}.fb.on,.fb:hover{background:var(--red);border-color:var(--red);color:#fff;}.pcg{display:flex;flex-direction:column;gap:3px;}.pc{border:1px solid var(--bd);overflow:hidden;background:var(--mid);}.pm{display:grid;grid-template-columns:200px 1fr auto;align-items:stretch;cursor:pointer;transition:background .2s;}.pm:hover{background:#252525;}.pi{width:200px;height:130px;overflow:hidden;background:#1a1a1a;flex-shrink:0;}.pi img{width:100%;height:100%;object-fit:cover;transition:transform .4s;}.pm:hover .pi img{transform:scale(1.04);}.pn{padding:18px 22px;}.pt2{font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:var(--rl);margin-bottom:6px;}.pna{font-family:'Montserrat',sans-serif;font-size:1.15rem;font-weight:300;margin-bottom:5px;}.pm2{font-size:.7rem;color:var(--gc);margin-bottom:5px;}.pd{font-size:.78rem;color:rgba(244,244,244,.5);}.ptog{padding:18px 22px;display:flex;align-items:center;font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gc);white-space:nowrap;border-left:1px solid var(--bd);min-width:130px;justify-content:center;}.pg{display:none;border-top:1px solid var(--bd);padding:16px;background:var(--dk);}.pg.open{display:block;}.ptg{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;}.pt{position:relative;aspect-ratio:4/3;overflow:hidden;cursor:pointer;background:#1a1a1a;}.pt img{width:100%;height:100%;object-fit:cover;transition:transform .3s;}.pt:hover img{transform:scale(1.05);}.ptl{position:absolute;bottom:0;left:0;right:0;background:rgba(15,15,15,.85);padding:4px 6px;font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--wh);text-align:center;}.lbo{position:fixed;inset:0;background:rgba(0,0,0,.96);z-index:1000;display:none;flex-direction:column;align-items:center;justify-content:center;}.lbo.open{display:flex;}.lbo img{max-width:90vw;max-height:80vh;object-fit:contain;}.lbl2{color:var(--wh);font-size:.8rem;margin-top:12px;letter-spacing:.1em;opacity:.7;text-transform:uppercase;}.lbx{position:absolute;top:20px;right:24px;background:none;border:none;color:var(--wh);font-size:1.8rem;cursor:pointer;opacity:.7;}.lbn{position:absolute;top:50%;transform:translateY(-50%);background:rgba(200,16,46,.75);border:none;color:#fff;font-size:1.5rem;cursor:pointer;padding:12px 16px;}.lbpp{left:20px;}.lbpn{right:20px;}#about{background:var(--dk);display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;}.av{position:relative;}.af{width:100%;aspect-ratio:3/4;overflow:hidden;position:relative;background:var(--mid);}.af::before{content:'';position:absolute;top:0;left:0;width:44px;height:44px;border-top:3px solid var(--red);border-left:3px solid var(--red);z-index:2;}.af::after{content:'';position:absolute;bottom:0;right:0;width:44px;height:44px;border-bottom:3px solid var(--red);border-right:3px solid var(--red);z-index:2;}.ab{position:absolute;bottom:-20px;right:-20px;width:110px;height:110px;background:var(--red);border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;z-index:3;}.abn{font-family:'Montserrat',sans-serif;font-size:1.9rem;font-weight:200;line-height:1;}.abt{font-size:.5rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;text-align:center;line-height:1.4;}.abo{color:rgba(244,244,244,.52);font-size:.84rem;line-height:1.9;margin-bottom:30px;}.al{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:34px;}.al li{display:flex;align-items:center;gap:10px;font-size:.81rem;color:rgba(244,244,244,.72);}.al li::before{content:'';display:block;width:17px;height:2px;background:var(--red);flex-shrink:0;}.slogan{font-family:'Montserrat',sans-serif;font-size:1.25rem;font-weight:200;font-style:italic;color:var(--rl);margin-top:30px;padding-top:22px;border-top:1px solid var(--bd);}#kontakt{background:var(--blk);}.ki{display:grid;grid-template-columns:1fr 1fr;gap:80px;}.kiintro{color:rgba(244,244,244,.52);font-size:.84rem;line-height:1.8;margin-bottom:38px;}.kid{display:flex;flex-direction:column;gap:20px;}.kii{display:flex;gap:13px;align-items:flex-start;}.kic{width:37px;height:37px;border:1px solid rgba(200,16,46,.25);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:var(--red);flex-shrink:0;}.kil{font-size:.57rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gc);margin-bottom:2px;}.kiv{font-size:.86rem;color:var(--wh);}.kf{display:flex;flex-direction:column;gap:13px;}.kg{display:flex;flex-direction:column;gap:5px;}.kg label{font-size:.59rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gc);}.kg input,.kg select,.kg textarea{background:var(--mid);border:1px solid var(--bd);color:var(--wh);padding:11px 13px;font-family:'Open Sans',sans-serif;font-size:.84rem;font-weight:300;outline:none;transition:border-color .2s;resize:vertical;}.kg input:focus,.kg select:focus,.kg textarea:focus{border-color:var(--red);}.kg select option{background:var(--dk);}.kr{display:grid;grid-template-columns:1fr 1fr;gap:13px;}.ks{width:100%;background:var(--red);color:#fff;padding:14px;font-family:'Open Sans',sans-serif;font-size:.72rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;border:none;cursor:pointer;}.ks:hover{background:var(--rl);}footer{background:var(--dk);border-top:3px solid var(--red);}.fi{display:flex;justify-content:space-between;align-items:center;padding:30px 60px;}.flr{font-family:'Montserrat',sans-serif;font-size:1.15rem;font-weight:200;color:var(--wh);}.flc{font-family:'Montserrat',sans-serif;font-size:.66rem;letter-spacing:.25em;color:var(--gc);margin-left:4px;}.fc{font-size:.67rem;color:var(--gc);}.fls{display:flex;gap:24px;}.fls a{font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gc);text-decoration:none;}.fls a:hover{color:var(--rl);}@media(max-width:1024px){.ni,.hc,section,.fi{padding-left:26px;padding-right:26px;}section{padding:65px 26px;}.sh{grid-template-columns:1fr;}.sg{grid-template-columns:repeat(2,1fr);}#about{grid-template-columns:1fr;gap:42px;padding:65px 26px;}.ki{grid-template-columns:1fr;gap:42px;}.fi{flex-direction:column;gap:16px;text-align:center;}.pm{grid-template-columns:120px 1fr auto;}.pi{width:120px;height:90px;}.ptg{grid-template-columns:repeat(3,1fr);}.sb{grid-template-columns:1fr 1fr;}}@media(max-width:600px){.sg{grid-template-columns:1fr;}.kr{grid-template-columns:1fr;}.nls{display:none;}.pm{grid-template-columns:1fr;}.pi{width:100%;height:180px;}.ptg{grid-template-columns:repeat(2,1fr);}}";
+  var bd="<nav><div class='ni'><a href='#hero' class='nl'><span class='r'>Riedel</span><span class='s'></span><span class='c'>classics</span></a><ul class='nls'><li><a href='#services'>Leistungen</a></li><li><a href='#referenzen'>Referenzen</a></li><li><a href='#about'>\u00dcber uns</a></li><li><a href='#kontakt'>Kontakt</a></li></ul><a href='#kontakt' class='nc'>Anfrage senden</a></div></nav><section id='hero'><div class='hbg'></div><div class='hov'></div><div class='hc'><p class='hey'>Old- &amp; Youngtimer Spezialisten</p><h1 class='ht'><em>"+k.hero+"</em></h1><p class='hs'>"+k.sub+"</p><div class='ha'><a href='#kontakt' class='bm'>Kostenlos anfragen</a><a href='#referenzen' class='bs'>Referenzen &rarr;</a></div></div></section><div class='rline'></div><div class='sb'><div class='si'><div class='sn'>"+u.yrs+"</div><div class='sl'>Jahre Erfahrung</div></div><div class='si'><div class='sn'>"+(S.projs.length||"200+")+"</div><div class='sl'>Projekte betreut</div></div><div class='si'><div class='sn'>3</div><div class='sl'>Marken-Schwerpunkte</div></div><div class='si'><div class='sn'>100%</div><div class='sl'>Aus einer Hand</div></div></div><section id='services'><div class='sh'><div><p class='ey'>Was wir bieten</p><h2 class='st'>Komplettservice f\u00fcr <em>Klassiker</em></h2></div><p class='si2'>Von der schonenden Tiefenreinigung bis zur Komplettrestaurierung.</p></div><div class='sg'>"+lh+"</div></section><div class='rline'></div><section id='referenzen'><div class='rh'><div><p class='ey'>Unsere Arbeit</p><h2 class='st'>Ausgew\u00e4hlte <em>Referenzen</em></h2></div><div class='rf'>"+flt+"</div></div><div class='pcg'>"+ph+"</div></section><div class='rline'></div><section id='about'><div class='av'><div class='af'>"+aimg+"</div><div class='ab'><div class='abn'>"+u.yrs+"</div><div class='abt'>Jahre<br>Erfahrung</div></div></div><div><p class='ey'>\u00dcber uns</p><h2 class='st'>"+u.title+"</h2><p class='abo'>"+u.t1+"<br><br>"+u.t2+"</p><ul class='al'>"+uh+"</ul><a href='#kontakt' class='bm' style='display:inline-block;'>Jetzt Kontakt aufnehmen</a><p class='slogan'>\u2026mit Liebe zum Detail</p></div></section><div class='rline'></div><section id='kontakt'><div class='ki'><div><p class='ey'>Kontakt</p><h2 class='st'>Sprechen wir \u00fcber <em>Ihr Fahrzeug</em></h2><p class='kiintro'>Wir melden uns schnell zur\u00fcck.</p><div class='kid'><div class='kii'><div class='kic'>&#128205;</div><div><div class='kil'>Standort</div><div class='kiv'>"+(k.str?k.str+", ":"")+(k.city||"&ndash;")+"</div></div></div><div class='kii'><div class='kic'>&#128222;</div><div><div class='kil'>Telefon</div><div class='kiv'>"+(k.tel||"&ndash;")+"</div></div></div><div class='kii'><div class='kic'>&#9993;</div><div><div class='kil'>E-Mail</div><div class='kiv'>"+k.mail+"</div></div></div><div class='kii'><div class='kic'>&#128336;</div><div><div class='kil'>\u00d6ffnungszeiten</div><div class='kiv'>Mo&ndash;Fr: "+k.mofr+"<br>Sa: "+k.sa+"</div></div></div></div></div><div class='kf'><div class='kr'><div class='kg'><label>Vorname</label><input type='text' placeholder='Hans'></div><div class='kg'><label>Nachname</label><input type='text' placeholder='M\u00fcller'></div></div><div class='kg'><label>E-Mail</label><input type='email' placeholder='ihre@email.de'></div><div class='kg'><label>Ihr Fahrzeug</label><input type='text' placeholder='z.B. Mercedes 280 SL'></div><div class='kg'><label>Gew\u00fcnschte Leistung</label><select>"+oh+"</select></div><div class='kg'><label>Nachricht</label><textarea rows='4'></textarea></div><button class='ks' onclick='alert(\"Vielen Dank!\")'>Anfrage absenden &rarr;</button></div></div></section><footer><div class='fi'><div><span class='flr'>Riedel</span><span class='flc'>classics</span></div><div class='fc'>&copy; "+yr+" "+k.name+(k.owner?" &middot; "+k.owner:"")+" &middot; Alle Rechte vorbehalten</div><div class='fls'><a href='#'>Impressum</a><a href='#'>Datenschutz</a></div></div></footer><div class='lbo' id='slb'><button class='lbx' onclick='document.getElementById(\"slb\").classList.remove(\"open\")'>&#10005;</button><button class='lbn lbpp' onclick='oLBn(-1)'>&#8249;</button><img id='slbi' src='' alt=''><div class='lbl2' id='slbl'></div><button class='lbn lbpn' onclick='oLBn(1)'>&#8250;</button></div>";
+  var sjs="var PD="+ld+",lpi=0,lii=0;function oLB(pi,ii){lpi=pi;lii=ii;var p=PD[pi];if(!p||!p.images[ii])return;document.getElementById('slbi').src=p.images[ii].url;document.getElementById('slbl').textContent=p.name+' \u2013 '+p.images[ii].label;document.querySelectorAll('.lbpp').forEach(function(b){b.style.display=ii>0?'':'none';});document.querySelectorAll('.lbpn').forEach(function(b){b.style.display=ii<p.images.length-1?'':'none';});document.getElementById('slb').classList.add('open');}function oLBn(d){var p=PD[lpi];if(!p)return;oLB(lpi,Math.max(0,Math.min(p.images.length-1,lii+d)));}function tPC(el){var g=el.nextElementSibling;if(!g)return;var open=g.classList.toggle('open');var lbl=el.querySelector('.ptog-lbl');if(lbl){var cnt=g.querySelectorAll('.pt').length;var word=cnt===1?'1 Bild':''+cnt+' Bilder';lbl.innerHTML=open?'&#9650; Einklappen':'&#9660; '+word+' anzeigen';}}function fr(btn,cat){document.querySelectorAll('.fb').forEach(function(b){b.classList.remove('on');});btn.classList.add('on');document.querySelectorAll('.pc').forEach(function(c){c.style.display=(cat==='all'||c.dataset.cat===cat)?'':'none';});}window.addEventListener('scroll',function(){document.querySelector('nav').style.boxShadow=window.scrollY>8?'0 4px 28px rgba(0,0,0,.5)':'none';});";
+  return "<!DOCTYPE html><html lang='de'><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>"+k.name+" - mit Liebe zum Detail</title><link href='https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,200;0,300;0,400;0,600;1,300&family=Open+Sans:wght@300;400;600&display=swap' rel='stylesheet'><style>"+css+"</style></head><body>"+bd+"<scr"+"ipt>"+sjs+"<\/script></body></html>";
+}
+
+function openPreview(){
+  var b=new Blob([buildSite()],{type:"text/html"});
+  document.getElementById("pv-frame").src=URL.createObjectURL(b);
+  document.getElementById("pv-ov").style.display="flex";
+}
+
+function downloadSite(){
+  var b=new Blob([buildSite()],{type:"text/html"});
+  var a=document.createElement("a");a.href=URL.createObjectURL(b);
+  a.download="riedel-classics-website.html";a.click();
+  toast("Website wird heruntergeladen!");
+}
+
+// Drag & Drop for upload zones
+document.addEventListener("dragover",function(e){
+  var dz=e.target.closest(".drop-z");
+  if(dz){e.preventDefault();dz.classList.add("dg");}
+});
+document.addEventListener("dragleave",function(e){
+  var dz=e.target.closest(".drop-z");
+  if(dz)dz.classList.remove("dg");
+});
+document.addEventListener("drop",function(e){
+  var dz=e.target.closest(".drop-z");
+  if(!dz)return;
+  e.preventDefault();dz.classList.remove("dg");
+  var file=e.dataTransfer.files[0];
+  if(!file||!file.type.startsWith("image/"))return;
+  var pid=parseInt(dz.id.replace("dz-",""));
+  var reader=new FileReader();
+  reader.onload=function(ev){
+    var img=new Image();
+    img.onload=function(){
+      var canvas=document.createElement("canvas");
+      var maxW=1200,w=img.width,h=img.height;
+      if(w>maxW){h=Math.round(h*maxW/w);w=maxW;}
+      canvas.width=w;canvas.height=h;
+      canvas.getContext("2d").drawImage(img,0,0,w,h);
+      var data=canvas.toDataURL("image/jpeg",0.82);
+      window._uploadData[pid]=data;
+      var prev=document.getElementById("uprev-"+pid);
+      var prevImg=document.getElementById("uprevimg-"+pid);
+      if(prev&&prevImg){prevImg.src=data;prev.style.display="block";}
+    };
+    img.src=ev.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+// Init
+renderProjs();
+renderLeis();
+renderPts();
+</script>
+</body>
+</html>
